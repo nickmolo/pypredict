@@ -4,27 +4,68 @@ import time
 
 from collections import namedtuple
 from copy import copy
-from cpredict import PredictException
-from cpredict import quick_find as _quick_find
-from cpredict import quick_predict as _quick_predict
+from cpredict import PredictException # type: ignore
+from cpredict import quick_find as _quick_find # type: ignore
+from cpredict import quick_predict as _quick_predict # type: ignore
+from dataclasses import dataclass
+
+@dataclass
+class Observation:
+    epoch: float
+    orbital_model: str
+    norad_id: int
+    name: str
+    latitude: float
+    longitude: float
+    altitude: float
+    orbital_velocity: float
+    footprint: float
+    eclipse_depth: float
+    orbital_phase: float
+    sunlit: int
+    orbit: int
+    geostationary: str
+    azimuth: float
+    elevation: float
+    slant_range: float
+    visibility: str
+    has_aos: str
+    decayed: str
+    doppler: float
+    eci_x: float
+    eci_y: float
+    eci_z: float
+    eci_vx: float
+    eci_vy: float
+    eci_vz: float
+    eci_sun_x: float
+    eci_sun_y: float
+    eci_sun_z: float
+    eci_obs_x: float
+    eci_obs_y: float
+    eci_obs_z: float
+    beta_angle: float
+
+    def __getitem__(self, item):
+        return getattr(self, item)
 
 
 SolarWindow = namedtuple("SolarWindow", ["start", "end"])
 
 
-def quick_find(tle, at, qth):
+def quick_find(tle, at, qth) -> Observation:
     tle = massage_tle(tle)
     qth = massage_qth(qth)
     return _quick_find(tle, at, qth)
 
 
-def quick_predict(tle, ts, qth):
+def quick_predict(tle, ts, qth) -> Observation:
     tle = massage_tle(tle)
     qth = massage_qth(qth)
     return _quick_predict(tle, ts, qth)
 
 
-STR_TYPE = str if sys.version_info.major > 2 else basestring  # noqa: F821
+STR_TYPE = str if sys.version_info.major > 2 else basestring  # type: ignore # noqa: F821
 
 
 def host_qth(path="~/.predict/predict.qth"):
@@ -62,7 +103,7 @@ def massage_qth(qth):
         raise PredictException(e)
 
 
-def observe(tle, qth, at=None):
+def observe(tle, qth, at=None) -> Observation:
     if at is None:
         at = time.time()
     return quick_find(tle, at, qth)
@@ -294,7 +335,7 @@ class Transit:
     def duration(self):
         return self.end - self.start
 
-    def at(self, t, epsilon=0.001):
+    def at(self, t, epsilon=0.001) -> Observation:
         if t < (self.start - epsilon) or t > (self.end + epsilon):
             raise PredictException(
                 "time %f outside transit [%f, %f]" % (t, self.start, self.end)
