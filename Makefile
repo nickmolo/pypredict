@@ -6,11 +6,10 @@ sdist := dist/$(NAME)-$(VERSION).tar.gz
 wheels := \
 	dist/$(NAME)-$(VERSION)-cp27-cp27m-$(ARCH).whl \
 	dist/$(NAME)-$(VERSION)-cp27-cp27mu-$(ARCH).whl \
-	dist/$(NAME)-$(VERSION)-cp37-cp37m-$(ARCH).whl \
-	dist/$(NAME)-$(VERSION)-cp38-cp38-$(ARCH).whl \
 	dist/$(NAME)-$(VERSION)-cp39-cp39-$(ARCH).whl \
 	dist/$(NAME)-$(VERSION)-cp310-cp310-$(ARCH).whl \
-	dist/$(NAME)-$(VERSION)-cp311-cp311-$(ARCH).whl
+	dist/$(NAME)-$(VERSION)-cp311-cp311-$(ARCH).whl \
+	dist/$(NAME)-$(VERSION)-cp312-cp312-$(ARCH).whl
 
 .PHONY: help
 help:
@@ -31,12 +30,10 @@ build: sdist manylinux-wheels
 manylinux-wheels: $(wheels)
 
 $(wheels): $(src)
-	docker run --user $(shell id -u):$(shell id -g) -v $(shell pwd):/io \
-		quay.io/pypa/manylinux1_x86_64:latest \
-		/io/bin/build-manylinux-wheel.sh 27
+	
 	docker run --user $(shell id -u):$(shell id -g) -v $(shell pwd):/io \
 		quay.io/pypa/manylinux_2_28_x86_64:latest \
-		/io/bin/build-manylinux-wheel.sh 37 38 39 310 311
+		/io/bin/build-manylinux-wheel.sh 39 310 311 312
 
 .PHONY: sdist
 sdist: $(sdist)
